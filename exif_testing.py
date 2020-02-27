@@ -10,8 +10,8 @@ import PIL.Image
 import piexif
 #import matplotlib
 
-filename = 'C:/Users/Peria/Desktop/Mary-Meyer-Full-Bodied-Monkey-Puppet.jpg'
-filename = 'C:/Users/Peria/Desktop/New Folder/pipette_tip_box_19.jpg'
+filename = './Mary-Meyer-Full-Bodied-Monkey-Puppet.jpg'
+filename = './pipette_tip_box_17.jpg'
 img = PIL.Image.open(filename)
 #image = PIL.Image.open('C:/Users/Peria/Desktop/New Folder/pipette_tip_box_19.jpg')
 
