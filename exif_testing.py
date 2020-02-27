@@ -39,24 +39,29 @@ exif_initial = img._getexif()
 
 iuc = piexif.ExifIFD.UserComment # the index o of UserComment, i.e. 37510
 exif_dict = piexif.load(filename) # part binary still
-text_comment = "What a fooking mess"
-user_comment = piexif.helper.UserComment.dump(text_comment)
-exif_dict["Exif"][iuc] = user_comment
-exif_bytes = piexif.dump(exif_dict)
+# try:
+#     curr_comment = piexif.helper.UserComment.load(exif_dict["Exif"][iuc])
+# except KeyError():
+#     curr_comment = 
 
-user_comment_chk = piexif.helper.UserComment.load(exif_dict["Exif"][iuc])
+# text_comment = "What a fooking mess"
+# user_comment = piexif.helper.UserComment.dump(text_comment)
+# exif_dict["Exif"][iuc] = user_comment
+# exif_bytes = piexif.dump(exif_dict)
+
+# user_comment_chk = piexif.helper.UserComment.load(exif_dict["Exif"][iuc])
 
 
 def submit(text):
-    curr_comment = piexif.helper.UserComment.load(exif_dict["Exif"][iuc])
-    new_comment = curr_comment + text
+    new_comment = text
     user_comment = piexif.helper.UserComment.dump(new_comment)
     exif_dict["Exif"][iuc] = user_comment
+    piexif.insert(piexif.dump(exif_dict), filename)
 
 
 
-axbox = plt.axes([0.1, 0.05, 0.8, 0.075])
-text_box = TextBox(axbox, 'Evaluate', initial='enter your comments')
+axbox = plt.axes([0.1, 0.05, 0.8, 0.5])
+text_box = TextBox(axbox, 'Enter your metadata', initial='enter your comments',)
 text_box.on_submit(submit)
 
 
