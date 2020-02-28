@@ -59,9 +59,10 @@ def submit(text):
     piexif.insert(piexif.dump(exif_dict), filename)
 
 
-
-axbox = plt.axes([0.1, 0.05, 0.8, 0.5])
-text_box = TextBox(axbox, 'Enter your metadata', initial='enter your comments',)
+axbox = plt.axes([0.1, 0.05, 1, 0.5])
+comm_obj = exif_dict["Exif"][piexif.ExifIFD.UserComment]
+current_comment = piexif.helper.UserComment.load(comm_obj)
+text_box = TextBox(axbox,'', initial= current_comment)
 text_box.on_submit(submit)
 
 
