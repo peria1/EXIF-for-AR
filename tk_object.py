@@ -21,18 +21,23 @@ class Application(tk.Frame):
         self.root.geometry("1024x768")
 
         tk.Frame.__init__(self, self.root)
+        
+        self.iuc = piexif.ExifIFD.UserComment 
+        
         self.create_widgets()
 
     def create_widgets(self):
         self.root.bind('<Return>', self.parse)
         self.grid()
         
-        self.img = ImageTk.PhotoImage(Image.open("puppet2.jpg")) 
-        self.canvas = tk.Canvas(self)
-        self.canvas.create_image(20, 20, image=self.img) 
+        self.load_new_image("pipette_tip_box_4.jpg")
+        self.canvas = tk.Canvas(self,  width=1024, height=768)
+        self.canvas.create_image(400, 400,\
+                                  image=self.img) 
         self.canvas.grid()
 
         self.entry = tk.Entry(self)
+        self.entry.insert(0, self.current_comment)
         self.entry.grid()
 
         self.submit = tk.Button(self, text="Submit")
@@ -41,7 +46,25 @@ class Application(tk.Frame):
 
     def parse(self, event):
         print("You clicked?")
+        new_comment = self.entry.get()
+        user_comment = piexif.helper.UserComment.dump(new_comment)
+        self.exif_dict["Exif"][self.iuc] = user_comment
+        piexif.insert(piexif.dump(self.exif_dict), self.current_file)
 
+
+    def load_new_image(self, filename):
+        self.current_file = filename
+        self.img = ImageTk.PhotoImage(Image.open(filename)) 
+        self.exif_dict = piexif.load(filename) 
+        try:
+            comm_obj = self.exif_dict["Exif"][self.iuc]
+            self.current_comment = piexif.helper.UserComment.load(comm_obj)
+
+        except KeyError:
+            print('No Comment')
+            self.current_comment = ''
+
+        
     def start(self):
         self.root.mainloop()
 

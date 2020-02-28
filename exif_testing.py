@@ -60,7 +60,7 @@ def submit(text):
 
 
 axbox = plt.axes([0.1, 0.05, 1, 0.5])
-comm_obj = exif_dict["Exif"][piexif.ExifIFD.UserComment]
+comm_obj = exif_dict["Exif"][iuc]
 current_comment = piexif.helper.UserComment.load(comm_obj)
 text_box = TextBox(axbox,'', initial= current_comment)
 text_box.on_submit(submit)
