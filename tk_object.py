@@ -16,10 +16,13 @@ from PIL import ImageTk,Image
 class Application(tk.Frame):
     def __init__(self):
         
-        
         self.root = tk.Tk()
-        self.root.geometry("1024x768")
-
+        pad=3 # Why? 
+        geom=("{0}x{1}+0+0".format(
+            self.root.winfo_screenwidth()-pad, \
+                self.root.winfo_screenheight()-pad))
+        self.root.geometry(geom)
+        
         tk.Frame.__init__(self, self.root)
         
         self.iuc = piexif.ExifIFD.UserComment 
@@ -36,7 +39,7 @@ class Application(tk.Frame):
                                   image=self.img) 
         self.canvas.grid()
 
-        self.entry = tk.Entry(self)
+        self.entry = tk.Entry(self, width=80, font='Calibri 14')
         self.entry.insert(0, self.current_comment)
         self.entry.grid()
 
