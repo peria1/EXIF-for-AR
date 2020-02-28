@@ -9,7 +9,7 @@ import tkinter as tk
 root= tk.Tk()
 
 # canvas1 = tk.Canvas(root, width = 800, height = 300)
-canvas1 = tk.Canvas(root)
+canvas1 = tk.Canvas(root, width = 800, height = 300)
 canvas1.pack()
 
 entry1 = tk.Entry(root) 
