@@ -10,15 +10,31 @@ Created on Fri Feb 28 08:35:43 2020
 import glob
 import piexif
 import piexif.helper
-
+import platform as platf
 import tkinter as tk
-from tkinter.filedialog import FileDialog
+import sys
+# from tkinter.filedialog import FileDialog
 # import tkinter.filedialog
+# from tkinter import filedialog as fd
 
 from PIL import ImageTk,Image  
 
 class Application(tk.Frame):
-    def __init__(self):
+    def __init__(self, input_directory):
+     
+            
+    #      import tkinter as tk
+    # from tkinter import filedialog as fd 
+    
+    # def callback():
+    #     name= fd.askopenfilename() 
+    #     print(name)
+        
+    # errmsg = 'Error!'
+    # tk.Button(text='Click to Open File', 
+    #        command=callback).pack(fill=tk.X)
+    # tk.mainloop()   
+        
         
     #         root = tk.Tk()
     # root.focus_force()
@@ -26,7 +42,7 @@ class Application(tk.Frame):
     #                 #  from appearing
     # pathname = tk.filedialog.askdirectory(title=title, initialdir = initialdir)
     # return pathname
-        input_directory = 'C:/Users/peria/Desktop/work/Brent Lab/git-repo/EXIF-for-AR'
+        # input_directory = 'C:/Users/peria/Desktop/work/Brent Lab/git-repo/EXIF-for-AR'
 
         # input_directory = tkinter.filedialog.askdirectory()
         dir_to_process = input_directory + '/' + '*.jpg'
@@ -49,6 +65,8 @@ class Application(tk.Frame):
         self.root.bind('<Return>', self.parse)
         self.grid()
  
+        self.label = tk.Label(self.root, text='')
+ 
         self.current_comment = ''
         self.entry = tk.Entry(self, width=80, font='Calibri 14')
         self.entry.insert(0, self.current_comment)
@@ -59,6 +77,8 @@ class Application(tk.Frame):
         self.submit = tk.Button(self, text="Submit")
         self.submit.bind('<Button-1>', self.parse)
 
+ 
+        self.label.grid()
         self.canvas.grid()
         self.entry.grid()
         self.submit.grid()
@@ -76,6 +96,7 @@ class Application(tk.Frame):
     def load_new_image(self):
         try:
             self.current_file = next(self.image_iter)
+            self.label.text = self.current_file.split(self.get_slash())[-1]
             self.img = ImageTk.PhotoImage(Image.open(self.current_file)) 
             self.exif_dict = piexif.load(self.current_file) 
             try:
@@ -94,9 +115,22 @@ class Application(tk.Frame):
             
     def start(self):
         self.root.mainloop()
-
+ 
+    def get_slash(self):
+        if platf.system() == 'Windows':
+            slash = '\\' 
+        else:
+            slash = '/'
+        return slash
+    
 if __name__=="__main__":
-    Application().start()
+    
+    if len(sys.argv) == 1:
+        input_dir = 'C:\\Users\\peria\\Desktop\\work\\Brent Lab\\git-repo\\EXIF-for-AR'
+    else:
+        input_dir = sys.argv[1]
+        
+    Application(input_dir).start()
 
 # iuc = piexif.ExifIFD.UserComment # the index o of UserComment, i.e. 37510
 # exif_dict = piexif.load(filename) # part binary still
