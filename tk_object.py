@@ -7,14 +7,30 @@ Created on Fri Feb 28 08:35:43 2020
 # import PIL
 # # import PIL.ExifTags
 # import PIL.Image
+import glob
 import piexif
 import piexif.helper
 
 import tkinter as tk
+from tkinter.filedialog import FileDialog
+# import tkinter.filedialog
+
 from PIL import ImageTk,Image  
 
 class Application(tk.Frame):
     def __init__(self):
+        
+    #         root = tk.Tk()
+    # root.focus_force()
+    # root.withdraw() # we don't want a full GUI, so keep the root window 
+    #                 #  from appearing
+    # pathname = tk.filedialog.askdirectory(title=title, initialdir = initialdir)
+    # return pathname
+        input_directory = 'C:/Users/peria/Desktop/work/Brent Lab/git-repo/EXIF-for-AR'
+
+        # input_directory = tkinter.filedialog.askdirectory()
+        dir_to_process = input_directory + '/' + '*.jpg'
+        self.image_iter = iter(sorted(glob.glob(dir_to_process)))
         
         self.root = tk.Tk()
         pad=3 # Why? 
@@ -32,42 +48,50 @@ class Application(tk.Frame):
     def create_widgets(self):
         self.root.bind('<Return>', self.parse)
         self.grid()
-        
-        self.load_new_image("pipette_tip_box_4.jpg")
-        self.canvas = tk.Canvas(self,  width=1024, height=768)
-        self.canvas.create_image(400, 400,\
-                                  image=self.img) 
-        self.canvas.grid()
-
+ 
+        self.current_comment = ''
         self.entry = tk.Entry(self, width=80, font='Calibri 14')
         self.entry.insert(0, self.current_comment)
-        self.entry.grid()
+        
+        self.canvas = tk.Canvas(self,  width=1024, height=768)
+        self.load_new_image()
 
         self.submit = tk.Button(self, text="Submit")
         self.submit.bind('<Button-1>', self.parse)
+
+        self.canvas.grid()
+        self.entry.grid()
         self.submit.grid()
 
     def parse(self, event):
-        print("You clicked?")
+        # print("You clicked?")
         new_comment = self.entry.get()
         user_comment = piexif.helper.UserComment.dump(new_comment)
         self.exif_dict["Exif"][self.iuc] = user_comment
         piexif.insert(piexif.dump(self.exif_dict), self.current_file)
-
-
-    def load_new_image(self, filename):
-        self.current_file = filename
-        self.img = ImageTk.PhotoImage(Image.open(filename)) 
-        self.exif_dict = piexif.load(filename) 
-        try:
-            comm_obj = self.exif_dict["Exif"][self.iuc]
-            self.current_comment = piexif.helper.UserComment.load(comm_obj)
-
-        except KeyError:
-            print('No Comment')
-            self.current_comment = ''
-
         
+        self.entry.insert(0, '')
+        self.load_new_image()
+
+    def load_new_image(self):
+        try:
+            self.current_file = next(self.image_iter)
+            self.img = ImageTk.PhotoImage(Image.open(self.current_file)) 
+            self.exif_dict = piexif.load(self.current_file) 
+            try:
+                comm_obj = self.exif_dict["Exif"][self.iuc]
+                self.current_comment = piexif.helper.UserComment.load(comm_obj)
+                self.entry.delete(0, tk.END)
+                self.entry.insert(0, self.current_comment)
+            except KeyError:
+                print('No Comment')
+                self.current_comment = ''
+            self.canvas.create_image(400, 400,\
+                                      image=self.img) 
+        except StopIteration:
+            self.root.destroy()
+            print('No more files')
+            
     def start(self):
         self.root.mainloop()
 
