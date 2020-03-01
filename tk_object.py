@@ -12,7 +12,7 @@ import piexif
 import piexif.helper
 import platform as platf
 import tkinter as tk
-import sys
+# import sys
 # from tkinter.filedialog import FileDialog
 # import tkinter.filedialog
 # from tkinter import filedialog as fd
@@ -20,35 +20,14 @@ import sys
 from PIL import ImageTk,Image  
 
 class Application(tk.Frame):
-    def __init__(self, input_directory):
-     
-            
-    #      import tkinter as tk
-    # from tkinter import filedialog as fd 
-    
-    # def callback():
-    #     name= fd.askopenfilename() 
-    #     print(name)
-        
-    # errmsg = 'Error!'
-    # tk.Button(text='Click to Open File', 
-    #        command=callback).pack(fill=tk.X)
-    # tk.mainloop()   
-        
-        
-    #         root = tk.Tk()
-    # root.focus_force()
-    # root.withdraw() # we don't want a full GUI, so keep the root window 
-    #                 #  from appearing
-    # pathname = tk.filedialog.askdirectory(title=title, initialdir = initialdir)
-    # return pathname
-        # input_directory = 'C:/Users/peria/Desktop/work/Brent Lab/git-repo/EXIF-for-AR'
-
-        # input_directory = tkinter.filedialog.askdirectory()
+    def __init__(self):
+        self.root = tk.Tk()
+        top = tk.Toplevel(self.root)
+        top.withdraw()
+        input_directory = tk.filedialog.askdirectory(parent=top, title='Choose folder')
         dir_to_process = input_directory + '/' + '*.jpg'
         self.image_iter = iter(sorted(glob.glob(dir_to_process)))
         
-        self.root = tk.Tk()
         pad=3 # Why? 
         geom=("{0}x{1}+0+0".format(
             self.root.winfo_screenwidth()-pad, \
@@ -124,27 +103,5 @@ class Application(tk.Frame):
         return slash
     
 if __name__=="__main__":
-    
-    if len(sys.argv) == 1:
-        input_dir = 'C:\\Users\\peria\\Desktop\\work\\Brent Lab\\git-repo\\EXIF-for-AR'
-    else:
-        input_dir = sys.argv[1]
-        
-    Application(input_dir).start()
-
-# iuc = piexif.ExifIFD.UserComment # the index o of UserComment, i.e. 37510
-# exif_dict = piexif.load(filename) # part binary still
-
-# def submit(text):
-#     new_comment = text
-#     user_comment = piexif.helper.UserComment.dump(new_comment)
-#     exif_dict["Exif"][iuc] = user_comment
-#     piexif.insert(piexif.dump(exif_dict), filename)
-
-
-# axbox = plt.axes([0.1, 0.05, 1, 0.5])
-# comm_obj = exif_dict["Exif"][piexif.ExifIFD.UserComment]
-# current_comment = piexif.helper.UserComment.load(comm_obj)
-# text_box = TextBox(axbox,'', initial= current_comment)
-# text_box.on_submit(submit)
+    Application().start()
 
