@@ -12,6 +12,7 @@ import piexif
 import piexif.helper
 import platform as platf
 import tkinter as tk
+import tkinter.filedialog
 # import sys
 # from tkinter.filedialog import FileDialog
 # import tkinter.filedialog
@@ -24,7 +25,9 @@ class Application(tk.Frame):
         self.root = tk.Tk()
         top = tk.Toplevel(self.root)
         top.withdraw()
-        input_directory = tk.filedialog.askdirectory(parent=top, title='Choose folder')
+        input_directory = \
+            tkinter.filedialog.askdirectory(parent=top, \
+                                            title='Choose folder')
         dir_to_process = input_directory + '/' + '*.jpg'
         self.image_iter = iter(sorted(glob.glob(dir_to_process)))
         
