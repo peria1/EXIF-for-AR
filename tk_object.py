@@ -27,7 +27,15 @@ class Application(tk.Frame):
         input_directory = \
             tkinter.filedialog.askdirectory(parent=top, \
                                             title='Choose folder')
-                
+        
+        # ARGH! piexif can only deal with jpeg and tiff. 
+        bad_img_types = ['png','gif']
+        for t in bad_img_types:
+            if glob.glob(input_directory + '/*.'+ t):
+                print('You have some',t,'images...')
+                print('Please convert them to jpeg.')
+
+        
         img_types = ['jpg', 'tif']
         images_to_process = []
         for t in img_types:
