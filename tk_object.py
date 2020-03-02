@@ -4,33 +4,40 @@ Created on Fri Feb 28 08:35:43 2020
 
 @author: Bill
 """
-# import PIL
-# # import PIL.ExifTags
-# import PIL.Image
 import glob
 import piexif
 import piexif.helper
 import platform as platf
 import tkinter as tk
 import tkinter.filedialog
-# import sys
-# from tkinter.filedialog import FileDialog
-# import tkinter.filedialog
-# from tkinter import filedialog as fd
 
 from PIL import ImageTk,Image  
 
 class Application(tk.Frame):
     def __init__(self):
-        self.root = tk.Tk()
+        # Hocus pocus...bring Tk to life...
+        self.root = tk.Tk() 
         top = tk.Toplevel(self.root)
-        top.withdraw()
+        top.withdraw()  # ...in secret....
+        
+        #  ...but do not use root for a temporary window, i.e. 
+        #       the one in which the user picks a diresctory. In
+        #       other words, I need parent=top, not parent=root, for
+        #       the directory picker. 
         input_directory = \
             tkinter.filedialog.askdirectory(parent=top, \
                                             title='Choose folder')
-        dir_to_process = input_directory + '/' + '*.jpg'
-        self.image_iter = iter(sorted(glob.glob(dir_to_process)))
-        
+                
+        img_types = ['jpg', 'tif']
+        images_to_process = []
+        for t in img_types:
+            images_to_process.append(glob.glob(input_directory + '/*.'+ t))        
+        # Smash the list of lists into a plain old list. 
+        images_to_process = \
+            [item for il in images_to_process for item in il]
+        # Make an iterable out of all the image pathnames
+        self.image_iter = iter(sorted(images_to_process))
+       
         pad=3 # Why? 
         geom=("{0}x{1}+0+0".format(
             self.root.winfo_screenwidth()-pad, \
@@ -58,7 +65,6 @@ class Application(tk.Frame):
 
         self.submit = tk.Button(self, text="Submit")
         self.submit.bind('<Button-1>', self.parse)
-
  
         self.label.grid()
         self.canvas.grid()
@@ -66,12 +72,19 @@ class Application(tk.Frame):
         self.submit.grid()
 
     def parse(self, event):
-        # print("You clicked?")
-        new_comment = self.entry.get()
+        # what the user typed, plain text
+        new_comment = self.entry.get() 
+        
+        # what the user typed, dumped to binary
         user_comment = piexif.helper.UserComment.dump(new_comment)
+        
+        # binary dump put into EXIF  in RAM
         self.exif_dict["Exif"][self.iuc] = user_comment
+        
+        # modified EXIF written to disk
         piexif.insert(piexif.dump(self.exif_dict), self.current_file)
         
+        # zap the user-typed text, and move on to next
         self.entry.insert(0, '')
         self.load_new_image()
 
@@ -84,11 +97,11 @@ class Application(tk.Frame):
             try:
                 comm_obj = self.exif_dict["Exif"][self.iuc]
                 self.current_comment = piexif.helper.UserComment.load(comm_obj)
-                self.entry.delete(0, tk.END)
-                self.entry.insert(0, self.current_comment)
             except KeyError:
                 print('No Comment')
                 self.current_comment = ''
+            self.entry.delete(0, tk.END)
+            self.entry.insert(0, self.current_comment)
             self.canvas.create_image(400, 400,\
                                       image=self.img) 
         except StopIteration:
@@ -98,7 +111,7 @@ class Application(tk.Frame):
     def start(self):
         self.root.mainloop()
  
-    def get_slash(self):
+    def get_slash(self): # OMG I hate computers sometimes. 
         if platf.system() == 'Windows':
             slash = '\\' 
         else:

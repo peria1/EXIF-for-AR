@@ -3,6 +3,7 @@
 Created on Sun Mar  1 06:27:20 2020
 https://stackoverflow.com/questions/36315156/how-do-i-run-multiple-tkinter-windows-simultaneously-in-python
 
+The only changes I will make here are comments/notes to help me understand this. 
 
 @author: Bill
 """
@@ -24,8 +25,11 @@ def main():
     Notepad(root).pack(fill="both", expand=True)
     for i in range(5):
         top = tk.Toplevel(root)
+        # We can open as many windows having a new Toplevel parent
+        #   as we want...
         Notepad(top).pack(fill="both", expand=True)
 
+    #  ...and then tell root to poll them for user events. 
     root.mainloop()
 
 if __name__ == "__main__":
