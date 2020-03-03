@@ -44,18 +44,23 @@ class EXIF_Editor(tk.Frame):
         images_to_process = \
             [item for il in images_to_process for item in il]
         self.image_list = sorted(images_to_process) 
-        
-        top = tk.Toplevel(self.root)
-        top.withdraw()
-        self.universal_comment = \
-            simpledialog.askstring('Universal Comment',\
-                                   'Enter any text that applies to all images in this folder',\
-                                       parent=top)
-        
         # Make an iterable out of all the image pathnames to use
         #  when processing individual images. 
         self.image_iter = self.get_image_list_iter()
        
+        #
+        #  Let user enter anything that applies to all images in folder.
+        top = tk.Toplevel(self.root)
+        top.withdraw()
+        universal_comment = \
+            simpledialog.askstring('Universal Comment',\
+                                   'Enter any text that applies to all images in this folder',\
+                                       parent=top)
+        self.universal_comment = None
+        if len(universal_comment) > 0:
+            self.universal_comment = universal_comment
+    
+
         pad=3 # Why? 
         geom=("{0}x{1}+0+0".format(
             self.root.winfo_screenwidth()-pad, \
@@ -95,8 +100,12 @@ class EXIF_Editor(tk.Frame):
         
     def parse(self, event):
         # what the user typed, plain text
-        new_comment = self.entry.get() 
-        full_comment = self.universal_comment + ': ' + new_comment
+        full_comment = self.entry.get() 
+        # if self.universal_comment:
+        #     full_comment = self.universal_comment + ': ' + new_comment
+        # else:
+        #     full_comment = new_comment
+            
         # full comment, dumped to binary
         full_comment_dump = piexif.helper.UserComment.dump(full_comment)
         
@@ -107,23 +116,33 @@ class EXIF_Editor(tk.Frame):
         piexif.insert(piexif.dump(self.exif_dict), self.current_file)
         
         # zap the user-typed text, and move on to next
-        self.entry.insert(0, '')
+        # self.entry.insert(0, '')
         self.load_new_image()
 
     def load_new_image(self):
         try:
             self.current_file = next(self.image_iter)
-            self.label.text = self.current_file.split(self.get_slash())[-1]
+            # self.label.text = self.current_file.split(self.get_slash())[-1]
             self.img = ImageTk.PhotoImage(Image.open(self.current_file)) 
             self.exif_dict = piexif.load(self.current_file) 
             try:
                 comm_obj = self.exif_dict["Exif"][self.iuc]
-                self.current_comment = piexif.helper.UserComment.load(comm_obj)
+                pre_existing_comment = piexif.helper.UserComment.load(comm_obj)
             except KeyError:
                 print('No Comment')
-                self.current_comment = ''
+                pre_existing_comment = ''
             self.entry.delete(0, tk.END)
-            self.entry.insert(0, self.universal_comment + self.current_comment)
+            
+            existing_comment = None
+            if self.universal_comment:
+                existing_comment = \
+                    self.universal_comment + ': ' + pre_existing_comment
+            else:
+                existing_comment = pre_existing_comment
+
+            self.entry.insert(0, existing_comment)
+ 
+               
             self.canvas.create_image(400, 400,\
                                       image=self.img) 
         except StopIteration:
