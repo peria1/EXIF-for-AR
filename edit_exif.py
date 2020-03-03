@@ -9,11 +9,11 @@ import piexif
 import piexif.helper
 import platform as platf
 import tkinter as tk
-import tkinter.filedialog
+from tkinter import filedialog, simpledialog
 
 from PIL import ImageTk,Image  
 
-class Application(tk.Frame):
+class EXIF_Editor(tk.Frame):
     def __init__(self):
         # Hocus pocus...bring Tk to life...
         self.root = tk.Tk() 
@@ -25,7 +25,7 @@ class Application(tk.Frame):
         #       other words, I need parent=top, not parent=root, for
         #       the directory picker. 
         input_directory = \
-            tkinter.filedialog.askdirectory(parent=top, \
+            filedialog.askdirectory(parent=top, \
                                             title='Choose folder')
         
         # ARGH! piexif can only deal with jpeg and tiff. 
@@ -43,8 +43,18 @@ class Application(tk.Frame):
         # Smash the list of lists into a plain old list. 
         images_to_process = \
             [item for il in images_to_process for item in il]
-        # Make an iterable out of all the image pathnames
-        self.image_iter = iter(sorted(images_to_process))
+        self.image_list = sorted(images_to_process) 
+        
+        top = tk.Toplevel(self.root)
+        top.withdraw()
+        self.universal_comment = \
+            simpledialog.askstring('Universal Comment',\
+                                   'Enter any text that applies to all images in this folder',\
+                                       parent=top)
+        
+        # Make an iterable out of all the image pathnames to use
+        #  when processing individual images. 
+        self.image_iter = self.get_image_list_iter()
        
         pad=3 # Why? 
         geom=("{0}x{1}+0+0".format(
@@ -78,16 +88,20 @@ class Application(tk.Frame):
         self.canvas.grid()
         self.entry.grid()
         self.submit.grid()
-
+        
+    def get_image_list_iter(self):
+        return(iter(self.image_list))
+        
+        
     def parse(self, event):
         # what the user typed, plain text
         new_comment = self.entry.get() 
-        
-        # what the user typed, dumped to binary
-        user_comment = piexif.helper.UserComment.dump(new_comment)
+        full_comment = self.universal_comment + new_comment
+        # full comment, dumped to binary
+        full_comment_dump = piexif.helper.UserComment.dump(full_comment)
         
         # binary dump put into EXIF  in RAM
-        self.exif_dict["Exif"][self.iuc] = user_comment
+        self.exif_dict["Exif"][self.iuc] = full_comment_dump
         
         # modified EXIF written to disk
         piexif.insert(piexif.dump(self.exif_dict), self.current_file)
@@ -109,7 +123,7 @@ class Application(tk.Frame):
                 print('No Comment')
                 self.current_comment = ''
             self.entry.delete(0, tk.END)
-            self.entry.insert(0, self.current_comment)
+            self.entry.insert(0, self.universal_comment + self.current_comment)
             self.canvas.create_image(400, 400,\
                                       image=self.img) 
         except StopIteration:
@@ -125,7 +139,16 @@ class Application(tk.Frame):
         else:
             slash = '/'
         return slash
+
+class Notepad(tk.Frame):
+    def __init__(self, parent):
+        tk.Frame.__init__(self, parent)
+        self.text = tk.Text(self, wrap="word")
+        self.vsb = tk.Scrollbar(self, orient="vertical", comman=self.text.yview)
+        self.text.configure(yscrollcommand=self.vsb.set)
+        self.vsb.pack(side="right", fill="y")
+        self.text.pack(side="left", fill="both", expand=True)
     
 if __name__=="__main__":
-    Application().start()
+    EXIF_Editor().start()
 
