@@ -96,7 +96,7 @@ class EXIF_Editor(tk.Frame):
     def parse(self, event):
         # what the user typed, plain text
         new_comment = self.entry.get() 
-        full_comment = self.universal_comment + new_comment
+        full_comment = self.universal_comment + ': ' + new_comment
         # full comment, dumped to binary
         full_comment_dump = piexif.helper.UserComment.dump(full_comment)
         
