@@ -73,40 +73,42 @@ class EXIF_Editor(tk.Frame):
         
         self.create_widgets()
 
-    def create_widgets(self):
+    def create_widgets(self):   # TODO add s quit button, and gracefully exit
         self.root.bind('<Return>', self.parse)
-        self.grid()
+        self.grid(columnspan=2)
+        
+        font = 'Calibri 14'
  
-        self.label = tk.Label(self.root, text='')
+        self.labtext = tk.StringVar()
+        self.label = tk.Label(self.root, textvariable=self.labtext, \
+                              font=font, anchor=tk.N)
  
         self.current_comment = ''
-        self.entry = tk.Entry(self, width=80, font='Calibri 14')
+        self.entry = tk.Entry(self, width=80, font=font)
         self.entry.insert(0, self.current_comment)
         
         self.canvas = tk.Canvas(self,  width=1024, height=768)
         self.load_new_image()
 
-        self.submit = tk.Button(self, text="Submit")
-        self.submit.bind('<Button-1>', self.parse)
+        self.erase = tk.Button(self, text='Erase all comments')
+        self.erase.bind('<Button-1>', self.erase_all)
+        
+        self.enough = tk.Button(self, text="Enough, already!")
+        self.enough.bind('<Button-1>', self.byebye)
  
-        self.label.grid()
-        self.canvas.grid()
-        self.entry.grid()
-        self.submit.grid()
+        self.label.grid(row=0,columnspan=2)
+        self.canvas.grid(row=1,column=0, columnspan=2)
+        self.entry.grid(row=2,columnspan=2)
+        self.enough.grid(row=3,column=0)
+        self.erase.grid(row=3,column=1)
+        
         
     def get_image_list_iter(self):
         return(iter(self.image_list))
-        
-        
+                
     def parse(self, event):
         # what the user typed, plain text
         full_comment = self.entry.get() 
-        # if self.universal_comment:
-        #     full_comment = self.universal_comment + ': ' + new_comment
-        # else:
-        #     full_comment = new_comment
-            
-        # full comment, dumped to binary
         full_comment_dump = piexif.helper.UserComment.dump(full_comment)
         
         # binary dump put into EXIF  in RAM
@@ -122,6 +124,8 @@ class EXIF_Editor(tk.Frame):
     def load_new_image(self):
         try:
             self.current_file = next(self.image_iter)
+            self.labtext.set(self.current_file.split(self.get_slash())[-1])
+
             # self.label.text = self.current_file.split(self.get_slash())[-1]
             self.img = ImageTk.PhotoImage(Image.open(self.current_file)) 
             self.exif_dict = piexif.load(self.current_file) 
@@ -146,9 +150,21 @@ class EXIF_Editor(tk.Frame):
             self.canvas.create_image(400, 400,\
                                       image=self.img) 
         except StopIteration:
-            self.root.destroy()
             print('No more files')
+            self.byebye(None)
             
+    def erase_all(self, event):
+        imglist = self.get_image_list_iter()
+        for img in imglist:
+            self.exif_dict = piexif.load(img)
+            blank_dump = piexif.helper.UserComment.dump('')
+            self.exif_dict["Exif"][self.iuc] = blank_dump
+            piexif.insert(piexif.dump(self.exif_dict), img)
+        self.byebye(event)
+
+    def byebye(self, event):
+        self.root.destroy()
+    
     def start(self):
         self.root.mainloop()
  
