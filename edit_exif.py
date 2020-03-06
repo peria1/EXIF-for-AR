@@ -160,13 +160,21 @@ class EXIF_Editor(tk.Frame):
             self.byebye(None)
             
     def erase_all(self, event):
-        imglist = self.get_image_list_iter()
-        for img in imglist:
-            self.exif_dict = piexif.load(img)
-            blank_dump = piexif.helper.UserComment.dump('')
-            self.exif_dict["Exif"][self.iuc] = blank_dump
-            piexif.insert(piexif.dump(self.exif_dict), img)
-        self.byebye(event)
+        top = tk.Toplevel(self.root)
+        top.withdraw()
+        must_be_yes = \
+            simpledialog.askstring('Whoa, there!',\
+                                   'Are you sure you want to erase all comments?',\
+                                       parent=top)
+
+        if must_be_yes == 'yes':
+            imglist = self.get_image_list_iter()
+            for img in imglist:
+                self.exif_dict = piexif.load(img)
+                blank_dump = piexif.helper.UserComment.dump('')
+                self.exif_dict["Exif"][self.iuc] = blank_dump
+                piexif.insert(piexif.dump(self.exif_dict), img)
+            self.byebye(event)
 
     def byebye(self, event):
         self.root.destroy()
