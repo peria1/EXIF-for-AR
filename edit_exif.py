@@ -29,7 +29,9 @@ class EXIF_Editor(tk.Frame):
                                             title='Choose folder')
         
         # ARGH! piexif can only deal with jpeg and tiff. 
-        bad_img_types = ['png','gif']
+        bad_img_types = ['png','gif','webp','psd','raw','arw','cr2','nrw',\
+                         'k25','bmp','dib','ind','indd','indt','jp2','j2k',\
+                             'jpf','jpx','jpm','mj2','heif','heic']
         for t in bad_img_types:
             if glob.glob(input_directory + '/*.'+ t):
                 print('You have some',t,'images...')
@@ -89,6 +91,10 @@ class EXIF_Editor(tk.Frame):
         
         self.canvas = tk.Canvas(self,  width=1024, height=768)
         self.load_new_image()
+
+        self.prev = tk.Button(self, text='Prev')
+        self.prev.bind('<Button-1>', self.prev_image)
+
 
         self.erase = tk.Button(self, text='Erase all comments')
         self.erase.bind('<Button-1>', self.erase_all)
@@ -174,6 +180,9 @@ class EXIF_Editor(tk.Frame):
         else:
             slash = '/'
         return slash
+
+    def prev_image(self, event):
+        pass
 
 class Notepad(tk.Frame):
     def __init__(self, parent):
