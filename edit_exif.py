@@ -36,6 +36,7 @@ class EXIF_Editor(tk.Frame):
             if glob.glob(input_directory + '/*.'+ t):
                 print('You have some',t,'images...')
                 print('Please convert them to jpeg.')
+                print()
 
         
         img_types = ['jpg', 'tif']
