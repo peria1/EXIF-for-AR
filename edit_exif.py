@@ -11,7 +11,7 @@ import platform as platf
 import tkinter as tk
 from tkinter import filedialog, simpledialog
 
-from PIL import ImageTk,Image  
+from PIL import ImageTk,Image
 
 class EXIF_Editor(tk.Frame):
     def __init__(self):
@@ -39,6 +39,7 @@ class EXIF_Editor(tk.Frame):
                 print()
 
         
+        self.img_display_size = (800,600)
         img_types = ['jpg', 'tif']
         images_to_process = []
         for t in img_types:
@@ -134,7 +135,8 @@ class EXIF_Editor(tk.Frame):
             self.labtext.set(self.current_file.split(self.get_slash())[-1])
 
             # self.label.text = self.current_file.split(self.get_slash())[-1]
-            self.img = ImageTk.PhotoImage(Image.open(self.current_file)) 
+            img = Image.open(self.current_file)
+            self.img = ImageTk.PhotoImage(img.resize((self.img_display_size)))
             self.exif_dict = piexif.load(self.current_file) 
             try:
                 comm_obj = self.exif_dict["Exif"][self.iuc]
@@ -153,19 +155,19 @@ class EXIF_Editor(tk.Frame):
 
             self.entry.insert(0, existing_comment)
  
-               
-            self.canvas.create_image(400, 400,\
+            width, height = self.img_display_size
+            self.canvas.create_image(width, height, \
                                       image=self.img) 
         except StopIteration:
-            print('No more files')
+            print('No more files! All metadata recorded...')
             self.byebye(None)
             
     def erase_all(self, event):
         top = tk.Toplevel(self.root)
         top.withdraw()
         must_be_yes = \
-            simpledialog.askstring('Whoa, there!',\
-                                   'Are you sure you want to erase all comments?',\
+            simpledialog.askstring('Whoa, there! Hold your horses!',\
+                'Are you sure you want to erase all comments?',\
                                        parent=top)
 
         if must_be_yes == 'yes':
