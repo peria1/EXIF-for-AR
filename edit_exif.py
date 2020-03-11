@@ -94,8 +94,8 @@ class EXIF_Editor(tk.Frame):
         self.canvas = tk.Canvas(self,  width=1024, height=768)
         self.load_new_image()
 
-        self.prev = tk.Button(self, text='Prev')
-        self.prev.bind('<Button-1>', self.prev_image)
+        # self.prev = tk.Button(self, text='Prev')
+        # self.prev.bind('<Button-1>', self.prev_image)
 
 
         self.erase = tk.Button(self, text='Erase all comments')
