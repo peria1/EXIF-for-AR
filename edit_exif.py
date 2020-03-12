@@ -40,7 +40,7 @@ class EXIF_Editor(tk.Frame):
 
         
         self.img_display_size = (800,600)
-        img_types = ['jpg', 'tif']
+        img_types = ['jpg', 'jpeg', 'tif','tiff']
         images_to_process = []
         for t in img_types:
             images_to_process.append(glob.glob(input_directory + '/*.'+ t))        
@@ -50,7 +50,13 @@ class EXIF_Editor(tk.Frame):
         self.image_list = sorted(images_to_process) 
         # Make an iterable out of all the image pathnames to use
         #  when processing individual images. 
+        
+        if len(images_to_process)==0:
+            print('You have no suitable files in this folder.')
+            self.byebye(None)
+            
         self.image_iter = self.get_image_list_iter()
+            
        
         #
         #  Let user enter anything that applies to all images in folder.
