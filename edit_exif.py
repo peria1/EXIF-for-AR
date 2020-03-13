@@ -40,14 +40,18 @@ class EXIF_Editor(tk.Frame):
 
         
         self.img_display_size = (800,600)
-        img_types = ['jpg', 'jpeg', 'tif','tiff']
+        img_types = ['jpg', 'jpeg', 'tif','tiff',\
+                     'JPG', 'JPEG', 'TIF','TIFF']
         images_to_process = []
         for t in img_types:
             images_to_process.append(glob.glob(input_directory + '/*.'+ t))        
-        # Smash the list of lists into a plain old list. 
+        # Smash the list of lists into a plain old list, and then remove
+        #    any duplicates that may have popped up due to glob case 
+        #    sensitivity differences between platforms, using list(set()).
         images_to_process = \
             [item for il in images_to_process for item in il]
-        self.image_list = sorted(images_to_process) 
+            
+        self.image_list = sorted(list(set(images_to_process)))
         # Make an iterable out of all the image pathnames to use
         #  when processing individual images. 
         
